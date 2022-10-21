@@ -2,12 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../libraries/Math512Bits.sol";
-import "../libraries/BinHelper.sol";
-import "../libraries/Constants.sol";
-import "../interfaces/ILBPair.sol";
-import "../interfaces/ILBToken.sol";
-import "../LBErrors.sol";
+import "joe-v2/libraries/Math512Bits.sol";
+import "joe-v2/libraries/BinHelper.sol";
+import "joe-v2/libraries/Constants.sol";
+import "joe-v2/interfaces/ILBPair.sol";
+import "joe-v2/interfaces/ILBToken.sol";
+
+import "../JoeV2PeripheryErrors.sol";
 
 /// @title Liquidity Book periphery contract for Liquidity Amount
 /// @author Trader Joe
