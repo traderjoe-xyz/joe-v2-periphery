@@ -80,6 +80,7 @@ library LiquidityAmounts {
         uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
 
         liquidities = new uint256[](positionNumber);
+        ids = new uint24[](positionNumber);
 
         for (uint256 i; i < positionNumber; ++i) {
             uint24 id = uint24(ILBToken(LBPair).userPositionAtIndex(user, i));
