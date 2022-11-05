@@ -10,9 +10,9 @@ import "joe-v2/interfaces/ILBToken.sol";
 
 import "../JoeV2PeripheryErrors.sol";
 
-/// @title Liquidity Book periphery contract for Liquidity Amount
+/// @title Liquidity Book periphery library for Liquidity Amount
 /// @author Trader Joe
-/// @notice Periphery contract to help compute liquidity amounts from amounts and id
+/// @notice Periphery library to help compute liquidity amounts from amounts and ids
 library LiquidityAmounts {
     using Math512Bits for uint256;
 
@@ -69,39 +69,46 @@ library LiquidityAmounts {
 
     /// @notice Return the ids and liquidities of an user
     /// @param user The address of the user
+    /// @param ids the list of ids where the user have liquidity, ids need to be in ascending order to assert uniqueness
     /// @param LBPair The address of the LBPair
-    /// @return ids the list of ids where the user has liquidity
     /// @return liquidities the list of amount of liquidity of the user
-    function getLiquiditiesOf(address user, address LBPair)
-        internal
-        view
-        returns (uint24[] memory ids, uint256[] memory liquidities)
-    {
+    function getLiquiditiesOf(
+        address user,
+        uint24[] calldata ids,
+        address LBPair
+    ) internal view returns (uint256[] memory liquidities) {
         uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
 
         liquidities = new uint256[](positionNumber);
-        ids = new uint24[](positionNumber);
 
+        uint24 id;
         for (uint256 i; i < positionNumber; ++i) {
-            uint24 id = uint24(ILBToken(LBPair).userPositionAtIndex(user, i));
+            if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
+            id = ids[i];
 
-            ids[i] = id;
             liquidities[i] = ILBToken(LBPair).balanceOf(user, id);
         }
     }
 
     /// @notice Return the amounts received by an user if he were to burn all its liquidity
     /// @param user The address of the user
+    /// @param ids the list of ids where the user would remove its liquidity, ids need to be in ascending order to assert uniqueness
     /// @param LBPair The address of the LBPair
     /// @return amountX the amount of tokenX received by the user
     /// @return amountY the amount of tokenY received by the user
-    function getAmountsOf(address user, address LBPair) internal view returns (uint256 amountX, uint256 amountY) {
+    function getAmountsOf(
+        address user,
+        uint24[] calldata ids,
+        address LBPair
+    ) internal view returns (uint256 amountX, uint256 amountY) {
         uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
 
+        uint24 id;
         for (uint256 i; i < positionNumber; ++i) {
-            uint24 id = uint24(ILBToken(LBPair).userPositionAtIndex(user, i));
-            uint256 liquidity = ILBToken(LBPair).balanceOf(user, id);
+            if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
+            id = ids[i];
 
+            uint256 liquidity = ILBToken(LBPair).balanceOf(user, id);
             (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);
             uint256 totalSupply = ILBToken(LBPair).totalSupply(id);
 
