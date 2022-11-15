@@ -23,7 +23,7 @@ library LiquidityAmounts {
     /// @param amountY the amount of tokenY
     /// @return liquidities the amounts of liquidity received
     function getLiquiditiesForAmounts(
-        uint24[] calldata ids,
+        uint24[] memory ids,
         uint16 binStep,
         uint112 amountX,
         uint112 amountY
@@ -50,10 +50,10 @@ library LiquidityAmounts {
     /// @return amountX the amount of tokenX received by the user
     /// @return amountY the amount of tokenY received by the user
     function getAmountsForLiquidities(
-        uint256[] calldata liquidities,
-        uint256[] calldata totalSupplies,
-        uint112[] calldata binReservesX,
-        uint112[] calldata binReservesY
+        uint256[] memory liquidities,
+        uint256[] memory totalSupplies,
+        uint112[] memory binReservesX,
+        uint112[] memory binReservesY
     ) internal pure returns (uint256 amountX, uint256 amountY) {
         if (
             liquidities.length != totalSupplies.length &&
@@ -74,7 +74,7 @@ library LiquidityAmounts {
     /// @return liquidities the list of amount of liquidity of the user
     function getLiquiditiesOf(
         address user,
-        uint24[] calldata ids,
+        uint24[] memory ids,
         address LBPair
     ) internal view returns (uint256[] memory liquidities) {
         uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
@@ -98,7 +98,7 @@ library LiquidityAmounts {
     /// @return amountY the amount of tokenY received by the user
     function getAmountsOf(
         address user,
-        uint24[] calldata ids,
+        uint24[] memory ids,
         address LBPair
     ) internal view returns (uint256 amountX, uint256 amountY) {
         uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
