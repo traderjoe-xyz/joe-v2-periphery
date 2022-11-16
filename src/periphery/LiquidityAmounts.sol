@@ -77,12 +77,10 @@ library LiquidityAmounts {
         uint24[] memory ids,
         address LBPair
     ) internal view returns (uint256[] memory liquidities) {
-        uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
-
-        liquidities = new uint256[](positionNumber);
+        liquidities = new uint256[](ids.length);
 
         uint24 id;
-        for (uint256 i; i < positionNumber; ++i) {
+        for (uint256 i; i < ids.length; ++i) {
             if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
             id = ids[i];
 
@@ -101,10 +99,8 @@ library LiquidityAmounts {
         uint24[] memory ids,
         address LBPair
     ) internal view returns (uint256 amountX, uint256 amountY) {
-        uint256 positionNumber = ILBToken(LBPair).userPositionNumber(user);
-
         uint24 id;
-        for (uint256 i; i < positionNumber; ++i) {
+        for (uint256 i; i < ids.length; ++i) {
             if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
             id = ids[i];
 
