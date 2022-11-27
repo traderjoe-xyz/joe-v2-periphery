@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "joe-v2/libraries/Math512Bits.sol";
 import "joe-v2/libraries/BinHelper.sol";
 import "joe-v2/libraries/Constants.sol";
+import "joe-v2/libraries/SafeCast.sol";
 import "joe-v2/interfaces/ILBPair.sol";
 import "joe-v2/interfaces/ILBToken.sol";
 
@@ -15,6 +16,7 @@ import "../JoeV2PeripheryErrors.sol";
 /// @notice Periphery library to help compute liquidity amounts from amounts and ids
 library LiquidityAmounts {
     using Math512Bits for uint256;
+    using SafeCast for uint256;
 
     /// @notice Return the liquidities amounts received for a given amount of tokenX and tokenY
     /// @param ids the list of ids where the user want to add liquidity, ids need to be in ascending order to assert uniqueness
@@ -23,7 +25,7 @@ library LiquidityAmounts {
     /// @param amountY the amount of tokenY
     /// @return liquidities the amounts of liquidity received
     function getLiquiditiesForAmounts(
-        uint24[] memory ids,
+        uint256[] memory ids,
         uint16 binStep,
         uint112 amountX,
         uint112 amountY
@@ -33,7 +35,7 @@ library LiquidityAmounts {
         uint24 id;
         for (uint256 i; i < ids.length; ++i) {
             if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
-            id = ids[i];
+            id = ids[i].safe24();
 
             uint256 price = BinHelper.getPriceFromId(id, binStep);
 
@@ -74,7 +76,7 @@ library LiquidityAmounts {
     /// @return liquidities the list of amount of liquidity of the user
     function getLiquiditiesOf(
         address user,
-        uint24[] memory ids,
+        uint256[] memory ids,
         address LBPair
     ) internal view returns (uint256[] memory liquidities) {
         liquidities = new uint256[](ids.length);
@@ -82,7 +84,7 @@ library LiquidityAmounts {
         uint24 id;
         for (uint256 i; i < ids.length; ++i) {
             if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
-            id = ids[i];
+            id = ids[i].safe24();
 
             liquidities[i] = ILBToken(LBPair).balanceOf(user, id);
         }
@@ -96,13 +98,13 @@ library LiquidityAmounts {
     /// @return amountY the amount of tokenY received by the user
     function getAmountsOf(
         address user,
-        uint24[] memory ids,
+        uint256[] memory ids,
         address LBPair
     ) internal view returns (uint256 amountX, uint256 amountY) {
         uint24 id;
         for (uint256 i; i < ids.length; ++i) {
             if (id >= ids[i] && id != 0) revert LiquidityAmounts__OnlyStrictlyIncreasingId();
-            id = ids[i];
+            id = ids[i].safe24();
 
             uint256 liquidity = ILBToken(LBPair).balanceOf(user, id);
             (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);

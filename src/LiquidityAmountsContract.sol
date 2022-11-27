@@ -15,7 +15,7 @@ contract LiquidityAmountsContract {
     /// @param amountY the amount of tokenY
     /// @return liquidities the amounts of liquidity received
     function getLiquiditiesForAmounts(
-        uint24[] calldata ids,
+        uint256[] calldata ids,
         uint16 binStep,
         uint112 amountX,
         uint112 amountY
@@ -47,7 +47,7 @@ contract LiquidityAmountsContract {
     /// @return liquidities the list of amount of liquidity of the user
     function getLiquiditiesOf(
         address user,
-        uint24[] calldata ids,
+        uint256[] calldata ids,
         address LBPair
     ) external view returns (uint256[] memory liquidities) {
         return LiquidityAmounts.getLiquiditiesOf(user, ids, LBPair);
@@ -61,7 +61,7 @@ contract LiquidityAmountsContract {
     /// @return amountY the amount of tokenY received by the user
     function getAmountsOf(
         address user,
-        uint24[] calldata ids,
+        uint256[] calldata ids,
         address LBPair
     ) external view returns (uint256 amountX, uint256 amountY) {
         return LiquidityAmounts.getAmountsOf(user, ids, LBPair);
