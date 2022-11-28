@@ -6,5 +6,4 @@ import "joe-v2/LBErrors.sol";
 
 /** LiquidityAmounts Errors */
 
-error LiquidityAmounts__OnlyStrictlyIncreasingId();
 error LiquidityAmounts__LengthMismatch();
