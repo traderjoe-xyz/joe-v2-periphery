@@ -2,22 +2,22 @@
 
 pragma solidity ^0.8.0;
 
-import "joe-v2/libraries/Math512Bits.sol";
-import "joe-v2/libraries/BinHelper.sol";
+import "joe-v2/libraries/math/Uint256x256Math.sol";
+import "joe-v2/libraries/PriceHelper.sol";
 import "joe-v2/libraries/Constants.sol";
-import "joe-v2/libraries/SafeCast.sol";
+import "joe-v2/libraries/math/SafeCast.sol";
 import "joe-v2/interfaces/ILBPair.sol";
 import "joe-v2/interfaces/ILBToken.sol";
-
-import "../JoeV2PeripheryErrors.sol";
 
 /// @title Liquidity Book periphery library for Liquidity Amount
 /// @author Trader Joe
 /// @notice Periphery library to help compute liquidity amounts from amounts and ids.
 /// @dev The caller must ensure that the parameters are valid following the comments.
 library LiquidityAmounts {
-    using Math512Bits for uint256;
+    using Uint256x256Math for uint256;
     using SafeCast for uint256;
+
+    error LiquidityAmounts__LengthMismatch();
 
     /// @notice Return the liquidities amounts received for a given amount of tokenX and tokenY
     /// @dev The caller needs to ensure that the ids are unique, if not, the result will be wrong.
@@ -26,16 +26,15 @@ library LiquidityAmounts {
     /// @param amountX the amount of tokenX
     /// @param amountY the amount of tokenY
     /// @return liquidities the amounts of liquidity received
-    function getLiquiditiesForAmounts(
-        uint256[] memory ids,
-        uint16 binStep,
-        uint112 amountX,
-        uint112 amountY
-    ) internal pure returns (uint256[] memory liquidities) {
+    function getLiquiditiesForAmounts(uint256[] memory ids, uint16 binStep, uint112 amountX, uint112 amountY)
+        internal
+        pure
+        returns (uint256[] memory liquidities)
+    {
         liquidities = new uint256[](ids.length);
 
         for (uint256 i; i < ids.length; ++i) {
-            uint256 price = BinHelper.getPriceFromId(ids[i].safe24(), binStep);
+            uint256 price = PriceHelper.getPriceFromId(ids[i].safe24(), binStep);
 
             liquidities[i] = price.mulShiftRoundDown(amountX, Constants.SCALE_OFFSET) + amountY;
         }
@@ -56,9 +55,8 @@ library LiquidityAmounts {
         uint112[] memory binReservesY
     ) internal pure returns (uint256 amountX, uint256 amountY) {
         if (
-            liquidities.length != totalSupplies.length &&
-            liquidities.length != binReservesX.length &&
-            liquidities.length != binReservesY.length
+            liquidities.length != totalSupplies.length && liquidities.length != binReservesX.length
+                && liquidities.length != binReservesY.length
         ) revert LiquidityAmounts__LengthMismatch();
 
         for (uint256 i; i < liquidities.length; ++i) {
@@ -73,11 +71,11 @@ library LiquidityAmounts {
     /// @param ids the list of ids where the user have liquidity
     /// @param LBPair The address of the LBPair
     /// @return liquidities the list of amount of liquidity of the user
-    function getLiquiditiesOf(
-        address user,
-        uint256[] memory ids,
-        address LBPair
-    ) internal view returns (uint256[] memory liquidities) {
+    function getLiquiditiesOf(address user, uint256[] memory ids, address LBPair)
+        internal
+        view
+        returns (uint256[] memory liquidities)
+    {
         liquidities = new uint256[](ids.length);
 
         for (uint256 i; i < ids.length; ++i) {
@@ -92,11 +90,11 @@ library LiquidityAmounts {
     /// @param LBPair The address of the LBPair
     /// @return amountX the amount of tokenX received by the user
     /// @return amountY the amount of tokenY received by the user
-    function getAmountsOf(
-        address user,
-        uint256[] memory ids,
-        address LBPair
-    ) internal view returns (uint256 amountX, uint256 amountY) {
+    function getAmountsOf(address user, uint256[] memory ids, address LBPair)
+        internal
+        view
+        returns (uint256 amountX, uint256 amountY)
+    {
         for (uint256 i; i < ids.length; ++i) {
             uint24 id = ids[i].safe24();
 
