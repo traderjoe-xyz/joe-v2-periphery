@@ -83,6 +83,42 @@ library LiquidityAmounts {
         }
     }
 
+    /// @notice Return the liquidity amounts and the amounts of token in each bin for a given list of ids
+    /// @dev The caller needs to ensure that the ids are unique, if not, the result will be wrong.
+    /// @param user The address of the user
+    /// @param ids the list of ids where the user have liquidity
+    /// @param LBPair The address of the LBPair
+    /// @return amountsX the amounts of token X of the user for each id
+    /// @return amountsY the amounts of token Y of the user for each id
+    /// @return liquidities the liquidity amounts of the user for each id
+    function getAmountsAndLiquiditiesOf(address user, uint256[] memory ids, address LBPair)
+        internal
+        view
+        returns (uint256[] memory amountsX, uint256[] memory amountsY, uint256[] memory liquidities)
+    {
+        liquidities = new uint256[](ids.length);
+
+        uint16 binStep = ILBPair(LBPair).getBinStep();
+
+        for (uint256 i; i < ids.length; ++i) {
+            uint24 id = ids[i].safe24();
+
+            uint256 liquidity = ILBToken(LBPair).balanceOf(user, id);
+            (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);
+            uint256 totalSupply = ILBToken(LBPair).totalSupply(id);
+
+            uint256 amountX = liquidity.mulDivRoundDown(binReserveX, totalSupply);
+            uint256 amountY = liquidity.mulDivRoundDown(binReserveY, totalSupply);
+
+            uint256 price = PriceHelper.getPriceFromId(id, binStep);
+
+            amountsX[i] = amountX;
+            amountsY[i] = amountY;
+
+            liquidities[i] = price.mulShiftRoundDown(amountX, Constants.SCALE_OFFSET) + amountY;
+        }
+    }
+
     /// @notice Return the amounts received by an user if he were to burn all its liquidity
     /// @dev The caller needs to ensure that the ids are unique, if not, the result will be wrong.
     /// @param user The address of the user
