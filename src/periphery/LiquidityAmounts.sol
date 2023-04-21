@@ -97,6 +97,8 @@ library LiquidityAmounts {
         returns (uint256[] memory amountsX, uint256[] memory amountsY, uint256[] memory liquidities)
     {
         liquidities = new uint256[](ids.length);
+        amountsX = new uint256[](ids.length);
+        amountsY = new uint256[](ids.length);
 
         uint16 binStep = ILBPair(LBPair).getBinStep();
 
