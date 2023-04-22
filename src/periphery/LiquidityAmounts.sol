@@ -109,15 +109,17 @@ library LiquidityAmounts {
             (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);
             uint256 totalSupply = ILBToken(LBPair).totalSupply(id);
 
-            uint256 amountX = liquidity.mulDivRoundDown(binReserveX, totalSupply);
-            uint256 amountY = liquidity.mulDivRoundDown(binReserveY, totalSupply);
+            if (totalSupply > 0) {
+                uint256 amountX = liquidity.mulDivRoundDown(binReserveX, totalSupply);
+                uint256 amountY = liquidity.mulDivRoundDown(binReserveY, totalSupply);
 
-            uint256 price = PriceHelper.getPriceFromId(id, binStep);
+                uint256 price = PriceHelper.getPriceFromId(id, binStep);
 
-            amountsX[i] = amountX;
-            amountsY[i] = amountY;
+                amountsX[i] = amountX;
+                amountsY[i] = amountY;
 
-            liquidities[i] = price.mulShiftRoundDown(amountX, Constants.SCALE_OFFSET) + amountY;
+                liquidities[i] = price.mulShiftRoundDown(amountX, Constants.SCALE_OFFSET) + amountY;
+            }
         }
     }
 
