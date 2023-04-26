@@ -123,27 +123,54 @@ library LiquidityAmounts {
         }
     }
 
-    /// @notice Return the amounts received by an user if he were to burn all its liquidity
+    /// @notice Return the total amounts received by an user if he were to burn all its liquidity
     /// @dev The caller needs to ensure that the ids are unique, if not, the result will be wrong.
     /// @param user The address of the user
     /// @param ids the list of ids where the user would remove its liquidity, ids need to be in ascending order to assert uniqueness
     /// @param LBPair The address of the LBPair
-    /// @return amountX the amount of tokenX received by the user
-    /// @return amountY the amount of tokenY received by the user
-    function getAmountsOf(address user, uint256[] memory ids, address LBPair)
+    /// @return totalAmountX the total amount of tokenX received by the user
+    /// @return totalAmountY the total amount of tokenY received by the user
+    function getTotalAmountsOf(address user, uint256[] memory ids, address LBPair)
         internal
         view
-        returns (uint256 amountX, uint256 amountY)
+        returns (uint256 totalAmountX, uint256 totalAmountY)
     {
         for (uint256 i; i < ids.length; ++i) {
             uint24 id = ids[i].safe24();
 
-            uint256 liquidity = ILBToken(LBPair).balanceOf(user, id);
+            uint256 shares = ILBToken(LBPair).balanceOf(user, id);
             (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);
-            uint256 totalSupply = ILBToken(LBPair).totalSupply(id);
+            uint256 totalShares = ILBToken(LBPair).totalSupply(id);
 
-            amountX += liquidity.mulDivRoundDown(binReserveX, totalSupply);
-            amountY += liquidity.mulDivRoundDown(binReserveY, totalSupply);
+            totalAmountX += shares.mulDivRoundDown(binReserveX, totalShares);
+            totalAmountY += shares.mulDivRoundDown(binReserveY, totalShares);
+        }
+    }
+
+    /// @notice Return the list of amounts received by an user for a given list of ids
+    /// @dev The caller needs to ensure that the ids are unique, if not, the result will be wrong.
+    /// @param user The address of the user
+    /// @param ids the list of ids where the user would remove its liquidity, ids need to be in ascending order to assert uniqueness
+    /// @param LBPair The address of the LBPair
+    /// @return amountsX the amounts of tokenX received by the user for each id
+    /// @return amountsY the amounts of tokenY received by the user for each id
+    function getAmountsOf(address user, uint256[] memory ids, address LBPair)
+        internal
+        view
+        returns (uint256[] memory amountsX, uint256[] memory amountsY)
+    {
+        amountsX = new uint256[](ids.length);
+        amountsY = new uint256[](ids.length);
+
+        for (uint256 i; i < ids.length; ++i) {
+            uint24 id = ids[i].safe24();
+
+            uint256 shares = ILBToken(LBPair).balanceOf(user, id);
+            (uint256 binReserveX, uint256 binReserveY) = ILBPair(LBPair).getBin(id);
+            uint256 totalShares = ILBToken(LBPair).totalSupply(id);
+
+            amountsX[i] = shares.mulDivRoundDown(binReserveX, totalShares);
+            amountsY[i] = shares.mulDivRoundDown(binReserveY, totalShares);
         }
     }
 }
