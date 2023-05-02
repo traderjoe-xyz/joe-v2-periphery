@@ -13,6 +13,8 @@ import "joe-v2/interfaces/ILBToken.sol";
 /// @author Trader Joe
 /// @notice Periphery library to help compute liquidity amounts from amounts and ids.
 /// @dev The caller must ensure that the parameters are valid following the comments.
+///
+/// Deprecated: use LiquidityHelper instead
 library LiquidityAmounts {
     using Uint256x256Math for uint256;
     using SafeCast for uint256;
