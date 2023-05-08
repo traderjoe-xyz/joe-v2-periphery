@@ -7,6 +7,8 @@ import "./periphery/LiquidityAmounts.sol";
 /// @title Liquidity Book periphery contract for Liquidity Amount
 /// @author Trader Joe
 /// @notice Periphery contract to help compute liquidity amounts from amounts and ids
+///
+/// Deprecated: use LiquidityHelper instead
 contract LiquidityAmountsContract {
     /// @notice Return the liquidities amounts received for a given amount of tokenX and tokenY
     /// @param ids the list of ids where the user want to add liquidity, ids need to be in ascending order to assert uniqueness
