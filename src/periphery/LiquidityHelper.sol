@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import {Uint256x256Math} from "joe-v2/libraries/math/Uint256x256Math.sol";
 import {PriceHelper} from "joe-v2/libraries/PriceHelper.sol";
@@ -256,8 +256,13 @@ library LiquidityHelper {
             uint256 binLiquidity = getLiquidityFromPrice(binReserveX, binReserveY, price);
 
             uint256 liquidity = liquidities[i];
-            amountsX[i] = liquidity.mulDivRoundDown(binReserveX, binLiquidity);
-            amountsY[i] = liquidity.mulDivRoundDown(binReserveY, binLiquidity);
+
+            (amountsX[i], amountsY[i]) = binLiquidity == 0
+                ? (0, 0)
+                : (
+                    liquidity.mulDivRoundDown(binReserveX, binLiquidity),
+                    liquidity.mulDivRoundDown(binReserveY, binLiquidity)
+                );
 
             unchecked {
                 ++i;
@@ -380,8 +385,9 @@ library LiquidityHelper {
             (uint256 binReserveX, uint256 binReserveY) = lbPair.getBin(id);
             uint256 totalShares = lbPair.totalSupply(id);
 
-            uint256 amountX = share.mulDivRoundDown(binReserveX, totalShares);
-            uint256 amountY = share.mulDivRoundDown(binReserveY, totalShares);
+            (uint256 amountX, uint256 amountY) = totalShares == 0
+                ? (0, 0)
+                : (share.mulDivRoundDown(binReserveX, totalShares), share.mulDivRoundDown(binReserveY, totalShares));
 
             uint256 previousLiquidity = previousLiquidities[i];
 
@@ -393,8 +399,9 @@ library LiquidityHelper {
 
             feeShares[i] = feeShare;
 
-            feesX[i] = feeShare.mulDivRoundDown(binReserveX, totalShares);
-            feesY[i] = feeShare.mulDivRoundDown(binReserveY, totalShares);
+            (feesX[i], feesY[i]) = totalShares == 0
+                ? (0, 0)
+                : (feeShare.mulDivRoundDown(binReserveX, totalShares), feeShare.mulDivRoundDown(binReserveY, totalShares));
 
             unchecked {
                 ++i;
@@ -418,8 +425,9 @@ library LiquidityHelper {
         (uint256 binReserveX, uint256 binReserveY) = lbPair.getBin(id.safe24());
         uint256 totalShares = lbPair.totalSupply(id);
 
-        amountX = share.mulDivRoundDown(binReserveX, totalShares);
-        amountY = share.mulDivRoundDown(binReserveY, totalShares);
+        (amountX, amountY) = totalShares == 0
+            ? (0, 0)
+            : (share.mulDivRoundDown(binReserveX, totalShares), share.mulDivRoundDown(binReserveY, totalShares));
     }
 
     /**
@@ -450,8 +458,9 @@ library LiquidityHelper {
         (uint256 binReserveX, uint256 binReserveY) = lbPair.getBin(id);
         uint256 totalShares = lbPair.totalSupply(id);
 
-        amountX = share.mulDivRoundDown(binReserveX, totalShares);
-        amountY = share.mulDivRoundDown(binReserveY, totalShares);
+        (amountX, amountY) = totalShares == 0
+            ? (0, 0)
+            : (share.mulDivRoundDown(binReserveX, totalShares), share.mulDivRoundDown(binReserveY, totalShares));
     }
 
     /**
@@ -522,7 +531,7 @@ library LiquidityHelper {
 
         uint256 totalShares = lbPair.totalSupply(id);
 
-        return liquidity.mulDivRoundDown(totalShares, binLiquidity);
+        return binLiquidity == 0 ? 0 : liquidity.mulDivRoundDown(totalShares, binLiquidity);
     }
 
     /**
