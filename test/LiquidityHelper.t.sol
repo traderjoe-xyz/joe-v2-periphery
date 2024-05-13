@@ -3,8 +3,19 @@ pragma solidity ^0.8.0;
 
 import "./TestHelper.sol";
 
+import "../src/periphery/LiquidityHelper.sol";
+import "../src/LiquidityHelperContract.sol";
+
 contract TestLiquidityHelper is TestHelper {
     using Uint256x256Math for uint256;
+
+    LiquidityHelperContract helper;
+
+    function setUp() public override {
+        super.setUp();
+
+        helper = new LiquidityHelperContract();
+    }
 
     function test_GetSharesOf() public {
         (uint256[] memory aliceIds, uint256[] memory aliceShares) = addLiquidity(alice, lbPair0, 1e18, 20e6, 4, 4);

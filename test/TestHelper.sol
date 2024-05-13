@@ -8,24 +8,17 @@ import "joe-v2/libraries/Constants.sol";
 import "joe-v2/libraries/math/LiquidityConfigurations.sol";
 import "joe-v2/interfaces/ILBFactory.sol";
 
-import "../src/periphery/LiquidityHelper.sol";
-import "../src/LiquidityHelperContract.sol";
-
 contract TestHelper is Test {
     address immutable alice = makeAddr("alice");
     address immutable bob = makeAddr("bob");
-
-    LiquidityHelperContract helper;
 
     ILBFactory lbFactory = ILBFactory(0x8e42f2F4101563bF679975178e880FD87d3eFd4e);
 
     ILBPair lbPair0;
     ILBPair lbPair1;
 
-    function setUp() public {
+    function setUp() public virtual {
         vm.createSelectFork(StdChains.getChain("avalanche").rpcUrl, 29458842);
-
-        helper = new LiquidityHelperContract();
 
         lbPair0 = lbFactory.getLBPairAtIndex(0);
         lbPair1 = lbFactory.getLBPairAtIndex(1);
