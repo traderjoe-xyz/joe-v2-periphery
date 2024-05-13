@@ -9,7 +9,22 @@ optimizer_runs = 800
 runs = 1024
 
 [rpc_endpoints]
+
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
-fuji = "https://api.avax-test.network/ext/bc/C/rpc"
+avalanche_fuji = "https://api.avax-test.network/ext/bc/C/rpc"
+arbitrum_one = "https://arb1.arbitrum.io/rpc"
+arbitrum_one_goerli = "https://goerli-rollup.arbitrum.io/rpc"
+bnb_smart_chain = "https://bsc-dataseed.binance.org"
+bnb_smart_chain_testnet = "https://data-seed-prebsc-1-s1.binance.org:8545"
+mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
+
+[etherscan]
+arbitrum_one = { key = "${ARBISCAN_API_KEY}"}
+arbitrum_one_goerli = { key = "${ARBISCAN_API_KEY}" }
+avalanche = { key = "${SNOWTRACE_API_KEY}" }
+avalanche_fuji = { key = "${SNOWTRACE_API_KEY}" }
+bnb_smart_chain = { key = "${BSCSCAN_API_KEY}"}
+bnb_smart_chain_testnet = { key = "${BSCSCAN_API_KEY}" }
+mainnet = { key = "${ETHERSCAN_API_KEY}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

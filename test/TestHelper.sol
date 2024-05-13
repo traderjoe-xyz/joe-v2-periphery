@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
@@ -23,7 +23,7 @@ contract TestHelper is Test {
     ILBPair lbPair1;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("avalanche"), 29458842);
+        vm.createSelectFork(StdChains.getChain("avalanche").rpcUrl, 29458842);
 
         helper = new LiquidityHelperContract();
 
