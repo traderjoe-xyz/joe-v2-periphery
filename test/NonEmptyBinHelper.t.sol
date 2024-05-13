@@ -67,5 +67,9 @@ contract TestNonEmptyBinHelper is TestHelper {
 
         assertEq(lbPair0.getNextNonEmptyBin(true, bins[0].id), type(uint24).max, "test_GetPopulatedBins::12");
         assertEq(lbPair0.getNextNonEmptyBin(false, bins[bins.length - 1].id), 0, "test_GetPopulatedBins::13");
+
+        bins = helper.getPopulatedBins(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 1);
+
+        assertEq(bins.length, 1, "test_GetPopulatedBins::14");
     }
 }
