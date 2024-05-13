@@ -1,0 +1,52 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.20;
+
+import {ILBPair} from "joe-v2/interfaces/ILBPair.sol";
+
+/**
+ * @title Liquidity Book periphery library for fetching non-empty bins.
+ * @notice Periphery library to help fetch the non-empty bins of a liquidity book.
+ * @dev The caller must ensure that the parameters are valid following the comments.
+ */
+library NonEmptyBinHelper {
+    struct PopulatedBin {
+        uint24 id;
+        uint128 reserveX;
+        uint128 reserveY;
+    }
+
+    /**
+     * @notice Fetches the non-empty bins of a liquidity book pair from [start, end].
+     * @param pair The liquidity book pair.
+     * @param start The start bin id.
+     * @param end The end bin id. (inclusive)
+     * @return populatedBins The populated bins.
+     */
+    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end) internal view returns (PopulatedBin[] memory) {
+        (start, end) = start < end ? (start, end) : (end, start);
+
+        start = start == 0 ? 0 : --start;
+
+        uint256 length = end - start;
+        PopulatedBin[] memory populatedBins = new PopulatedBin[](end - start); // pessimistic memory allocation
+
+        uint24 id = start;
+        uint256 populatedBinCount = 0;
+
+        for (uint256 i; i < length; ++i) {
+            id = pair.getNextNonEmptyBin(false, id);
+
+            if (id > end || id == 0) break;
+
+            (uint128 reserveX, uint128 reserveY) = pair.getBin(id);
+            populatedBins[populatedBinCount++] = PopulatedBin(id, reserveX, reserveY);
+        }
+
+        assembly {
+            mstore(populatedBins, populatedBinCount)
+        }
+
+        return populatedBins;
+    }
+}
