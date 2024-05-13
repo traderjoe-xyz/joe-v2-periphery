@@ -18,23 +18,29 @@ library NonEmptyBinHelper {
 
     /**
      * @notice Fetches the non-empty bins of a liquidity book pair from [start, end].
+     *  If length is specified, it will return the first `length` non-empty bins.
      * @param pair The liquidity book pair.
      * @param start The start bin id.
      * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
      * @return populatedBins The populated bins.
      */
-    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end) internal view returns (PopulatedBin[] memory) {
+    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end, uint24 length)
+        internal
+        view
+        returns (PopulatedBin[] memory)
+    {
         (start, end) = start < end ? (start, end) : (end, start);
 
         start = start == 0 ? 0 : --start;
+        length = length == 0 ? end - start : length;
 
-        uint256 length = end - start;
-        PopulatedBin[] memory populatedBins = new PopulatedBin[](end - start); // pessimistic memory allocation
+        PopulatedBin[] memory populatedBins = new PopulatedBin[](length); // pessimistic memory allocation
 
         uint24 id = start;
         uint256 populatedBinCount = 0;
 
-        for (uint256 i; i < length; ++i) {
+        for (uint256 i; i < length && populatedBinCount < length; ++i) {
             id = pair.getNextNonEmptyBin(false, id);
 
             if (id > end || id == 0) break;

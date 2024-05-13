@@ -12,16 +12,18 @@ import {ILBPair, NonEmptyBinHelper} from "./periphery/NonEmptyBinHelper.sol";
 contract NonEmptyBinHelperContract {
     /**
      * @notice Fetches the non-empty bins of a liquidity book pair from [start, end].
+     *  If length is specified, it will return the first `length` non-empty bins.
      * @param pair The liquidity book pair.
      * @param start The start bin id.
      * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
      * @return populatedBins The populated bins.
      */
-    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end)
+    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end, uint24 length)
         external
         view
         returns (NonEmptyBinHelper.PopulatedBin[] memory)
     {
-        return NonEmptyBinHelper.getPopulatedBins(pair, start, end);
+        return NonEmptyBinHelper.getPopulatedBins(pair, start, end, length);
     }
 }

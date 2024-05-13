@@ -19,7 +19,7 @@ contract TestNonEmptyBinHelper is TestHelper {
         (uint256[] memory ids,) = addLiquidity(alice, lbPair0, 1e18, 20e6, 4, 4);
 
         NonEmptyBinHelper.PopulatedBin[] memory bins =
-            helper.getPopulatedBins(lbPair0, uint24(ids[0]), uint24(ids[ids.length - 1]));
+            helper.getPopulatedBins(lbPair0, uint24(ids[0]), uint24(ids[ids.length - 1]), 0);
 
         for (uint256 i; i < ids.length; i++) {
             assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBins::1");
@@ -31,7 +31,7 @@ contract TestNonEmptyBinHelper is TestHelper {
         }
 
         NonEmptyBinHelper.PopulatedBin[] memory binsReverse =
-            helper.getPopulatedBins(lbPair0, uint24(ids[ids.length - 1]), uint24(ids[0]));
+            helper.getPopulatedBins(lbPair0, uint24(ids[ids.length - 1]), uint24(ids[0]), 0);
 
         assertEq(binsReverse.length, bins.length, "test_GetPopulatedBins::4");
 
@@ -44,7 +44,7 @@ contract TestNonEmptyBinHelper is TestHelper {
         uint24 start = uint24(ids[ids.length - 1]);
         uint24 end = start + 20;
 
-        bins = helper.getPopulatedBins(lbPair0, start, end);
+        bins = helper.getPopulatedBins(lbPair0, start, end, 0);
 
         assertLt(bins.length, 20, "test_GetPopulatedBins::8");
 
@@ -60,5 +60,12 @@ contract TestNonEmptyBinHelper is TestHelper {
                 binsI++;
             }
         }
+
+        bins = helper.getPopulatedBins(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 100);
+
+        assertLt(bins.length, 100, "test_GetPopulatedBins::12");
+
+        assertEq(lbPair0.getNextNonEmptyBin(true, bins[0].id), type(uint24).max, "test_GetPopulatedBins::12");
+        assertEq(lbPair0.getNextNonEmptyBin(false, bins[bins.length - 1].id), 0, "test_GetPopulatedBins::13");
     }
 }
