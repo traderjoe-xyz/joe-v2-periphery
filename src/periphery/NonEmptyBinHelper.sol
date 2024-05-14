@@ -46,7 +46,7 @@ library NonEmptyBinHelper {
 
         length = length == 0 ? (end > start ? end - start : start - end) : length;
 
-        bytes memory ids = new bytes(length * 3); // pessimistic memory allocation of 3 bytes per id
+        bytes memory ids = new bytes(uint256(length) * 3); // pessimistic memory allocation of 3 bytes per id
 
         uint256 populatedBinCount = 0;
         uint256 memValue = ids.length;

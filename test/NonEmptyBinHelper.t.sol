@@ -165,5 +165,10 @@ contract TestNonEmptyBinHelper is TestHelper {
 
         assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::27");
         assertEq(bins.length, 0, "test_GetPopulatedBinsReservesFor::28");
+
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, activeId, type(uint24).max, type(uint24).max);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::29");
+        assertEq(bins.length, 10, "test_GetPopulatedBinsReservesFor::30");
     }
 }
