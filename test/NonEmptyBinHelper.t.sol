@@ -4,15 +4,15 @@ pragma solidity ^0.8.0;
 import "./TestHelper.sol";
 
 import "../src/periphery/NonEmptyBinHelper.sol";
-import "../src/NonEmptyBinHelperContract.sol";
+import "../src/LiquidityHelperContract.sol";
 
 contract TestNonEmptyBinHelper is TestHelper {
-    NonEmptyBinHelperContract helper;
+    LiquidityHelperContract helper;
 
     function setUp() public override {
         super.setUp();
 
-        helper = new NonEmptyBinHelperContract();
+        helper = new LiquidityHelperContract();
     }
 
     function test_GetPopulatedBins() public {

@@ -2,11 +2,14 @@
 
 pragma solidity ^0.8.20;
 
-import {ILBPair, LiquidityHelper} from "./periphery/LiquidityHelper.sol";
+import {ILBPair} from "joe-v2/interfaces/ILBPair.sol";
+
+import {LiquidityHelper} from "./periphery/LiquidityHelper.sol";
+import {NonEmptyBinHelper} from "./periphery/NonEmptyBinHelper.sol";
 
 /**
- * @title Liquidity Book periphery contract for Liquidity and Fees Amounts
- * @notice Periphery contract to help compute liquidity and fees amounts from amounts and ids.
+ * @title Liquidity Book periphery contract for Liquidity, Fees Amounts and bin fetching.
+ * @notice Periphery contract to help compute liquidity, fees amounts from amounts and ids and fetch bins.
  * @dev The caller must ensure that the parameters are valid following the comments.
  */
 contract LiquidityHelperContract {
@@ -207,5 +210,22 @@ contract LiquidityHelperContract {
         uint256[] memory previousLiquidities
     ) external view returns (uint256[] memory feeShares, uint256[] memory feesX, uint256[] memory feesY) {
         return LiquidityHelper.getFeeSharesAndFeesEarnedOf(lbPair, user, ids, previousLiquidities);
+    }
+
+    /**
+     * @notice Fetches the non-empty bins of a liquidity book pair from [start, end].
+     *  If length is specified, it will return the first `length` non-empty bins.
+     * @param pair The liquidity book pair.
+     * @param start The start bin id.
+     * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
+     * @return populatedBins The populated bins.
+     */
+    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end, uint24 length)
+        external
+        view
+        returns (NonEmptyBinHelper.PopulatedBin[] memory)
+    {
+        return NonEmptyBinHelper.getPopulatedBins(pair, start, end, length);
     }
 }
