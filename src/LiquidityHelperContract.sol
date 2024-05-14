@@ -213,7 +213,25 @@ contract LiquidityHelperContract {
     }
 
     /**
-     * @notice Fetches the non-empty bins of a liquidity book pair from [start, end].
+     * @dev Fetch the non-empty bins ids of a liquidity book pair from [start, end].
+     * If length is specified, it will return the first `length` non-empty bins.
+     * Returns the ids in a packed bytes array, where each id is 3 bytes.
+     * @param pair The liquidity book pair.
+     * @param start The start bin id.
+     * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
+     * @return ids The non-empty bins ids.
+     */
+    function getPopulatedBinsId(ILBPair pair, uint24 start, uint24 end, uint24 length)
+        external
+        view
+        returns (bytes memory)
+    {
+        return NonEmptyBinHelper.getPopulatedBinsId(pair, start, end, length);
+    }
+
+    /**
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [start, end].
      *  If length is specified, it will return the first `length` non-empty bins.
      * @param pair The liquidity book pair.
      * @param start The start bin id.
@@ -221,11 +239,33 @@ contract LiquidityHelperContract {
      * @param length The number of non-empty bins to fetch. (optional)
      * @return populatedBins The populated bins.
      */
-    function getPopulatedBins(ILBPair pair, uint24 start, uint24 end, uint24 length)
+    function getPopulatedBinsReserves(ILBPair pair, uint24 start, uint24 end, uint24 length)
         external
         view
         returns (NonEmptyBinHelper.PopulatedBin[] memory)
     {
-        return NonEmptyBinHelper.getPopulatedBins(pair, start, end, length);
+        return NonEmptyBinHelper.getPopulatedBinsReserves(pair, start, end, length);
+    }
+
+    /**
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [start, end] where the user has liquidity.
+     * If id is not specified, it will use the active bin id of the pair.
+     * Will check `lengthLeft` non-empty bins on the left and `lengthRight` non-empty bins on the right, so if the user
+     * has liquidity only after the `lengthLeft + 1` bin on the left and `lengthRight + 1` bin on the right, it will return
+     * an empty array.
+     * @param pair The liquidity book pair.
+     * @param user The user.
+     * @param id The specific bin id. (optional)
+     * @param lengthLeft The number of non-empty bins to fetch on the left.
+     * @param lengthRight The number of non-empty bins to fetch on the right.
+     * @return id The bin id used. (id id was not specified, will return the active bin id)
+     * @return populatedBins The populated bins.
+     */
+    function getBinsReserveOf(ILBPair pair, address user, uint24 id, uint24 lengthLeft, uint24 lengthRight)
+        external
+        view
+        returns (uint24, NonEmptyBinHelper.PopulatedBinUser[] memory)
+    {
+        return NonEmptyBinHelper.getBinsReserveOf(pair, user, id, lengthLeft, lengthRight);
     }
 }

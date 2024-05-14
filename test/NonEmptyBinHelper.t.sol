@@ -15,61 +15,128 @@ contract TestNonEmptyBinHelper is TestHelper {
         helper = new LiquidityHelperContract();
     }
 
-    function test_GetPopulatedBins() public {
+    function test_GetPopulatedBinsReserves() public {
         (uint256[] memory ids,) = addLiquidity(alice, lbPair0, 1e18, 20e6, 4, 4);
 
         NonEmptyBinHelper.PopulatedBin[] memory bins =
-            helper.getPopulatedBins(lbPair0, uint24(ids[0]), uint24(ids[ids.length - 1]), 0);
+            helper.getPopulatedBinsReserves(lbPair0, uint24(ids[0]), uint24(ids[ids.length - 1]), 0);
 
         for (uint256 i; i < ids.length; i++) {
-            assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBins::1");
+            assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBinsReserves::1");
 
             (uint128 reserveX, uint128 reserveY) = lbPair0.getBin(bins[i].id);
 
-            assertEq(bins[i].reserveX, reserveX, "test_GetPopulatedBins::2");
-            assertEq(bins[i].reserveY, reserveY, "test_GetPopulatedBins::3");
+            assertEq(bins[i].reserveX, reserveX, "test_GetPopulatedBinsReserves::2");
+            assertEq(bins[i].reserveY, reserveY, "test_GetPopulatedBinsReserves::3");
         }
 
         NonEmptyBinHelper.PopulatedBin[] memory binsReverse =
-            helper.getPopulatedBins(lbPair0, uint24(ids[ids.length - 1]), uint24(ids[0]), 0);
+            helper.getPopulatedBinsReserves(lbPair0, uint24(ids[ids.length - 1]), uint24(ids[0]), 0);
 
-        assertEq(binsReverse.length, bins.length, "test_GetPopulatedBins::4");
+        assertEq(binsReverse.length, bins.length, "test_GetPopulatedBinsReserves::4");
 
         for (uint256 i; i < binsReverse.length; i++) {
-            assertEq(binsReverse[i].id, bins[i].id, "test_GetPopulatedBins::5");
-            assertEq(binsReverse[i].reserveX, bins[i].reserveX, "test_GetPopulatedBins::6");
-            assertEq(binsReverse[i].reserveY, bins[i].reserveY, "test_GetPopulatedBins::7");
+            uint256 reverseI = binsReverse.length - 1 - i;
+
+            assertEq(binsReverse[reverseI].id, bins[i].id, "test_GetPopulatedBinsReserves::5");
+            assertEq(binsReverse[reverseI].reserveX, bins[i].reserveX, "test_GetPopulatedBinsReserves::6");
+            assertEq(binsReverse[reverseI].reserveY, bins[i].reserveY, "test_GetPopulatedBinsReserves::7");
         }
 
         uint24 start = uint24(ids[ids.length - 1]);
         uint24 end = start + 20;
 
-        bins = helper.getPopulatedBins(lbPair0, start, end, 0);
+        bins = helper.getPopulatedBinsReserves(lbPair0, start, end, 0);
 
-        assertLt(bins.length, 20, "test_GetPopulatedBins::8");
+        assertLt(bins.length, 20, "test_GetPopulatedBinsReserves::8");
 
         uint256 binsI;
         for (uint24 i; i < 20; i++) {
             (uint128 reserveX, uint128 reserveY) = lbPair0.getBin(start + i);
 
             if (reserveX > 0 || reserveY > 0) {
-                assertEq(bins[binsI].id, start + i, "test_GetPopulatedBins::9");
-                assertEq(bins[binsI].reserveX, reserveX, "test_GetPopulatedBins::10");
-                assertEq(bins[binsI].reserveY, reserveY, "test_GetPopulatedBins::11");
+                assertEq(bins[binsI].id, start + i, "test_GetPopulatedBinsReserves::9");
+                assertEq(bins[binsI].reserveX, reserveX, "test_GetPopulatedBinsReserves::10");
+                assertEq(bins[binsI].reserveY, reserveY, "test_GetPopulatedBinsReserves::11");
 
                 binsI++;
             }
         }
 
-        bins = helper.getPopulatedBins(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 100);
+        bins = helper.getPopulatedBinsReserves(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 100);
 
-        assertLt(bins.length, 100, "test_GetPopulatedBins::12");
+        assertLt(bins.length, 100, "test_GetPopulatedBinsReserves::12");
 
-        assertEq(lbPair0.getNextNonEmptyBin(true, bins[0].id), type(uint24).max, "test_GetPopulatedBins::12");
-        assertEq(lbPair0.getNextNonEmptyBin(false, bins[bins.length - 1].id), 0, "test_GetPopulatedBins::13");
+        assertEq(lbPair0.getNextNonEmptyBin(true, bins[0].id), type(uint24).max, "test_GetPopulatedBinsReserves::13");
+        assertEq(lbPair0.getNextNonEmptyBin(false, bins[bins.length - 1].id), 0, "test_GetPopulatedBinsReserves::14");
 
-        bins = helper.getPopulatedBins(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 1);
+        bins = helper.getPopulatedBinsReserves(lbPair0, 2 ** 23 - 887272, 2 ** 23 + 887272, 1);
 
-        assertEq(bins.length, 1, "test_GetPopulatedBins::14");
+        assertEq(bins.length, 1, "test_GetPopulatedBinsReserves::15");
+        assertEq(bins[0].id, 8112267, "test_GetPopulatedBinsReserves::16");
+
+        bins = helper.getPopulatedBinsReserves(lbPair0, 2 ** 23 + 887272, 2 ** 23 - 887272, 1);
+
+        assertEq(bins.length, 1, "test_GetPopulatedBinsReserves::17");
+        assertEq(bins[0].id, 8112296, "test_GetPopulatedBinsReserves::18");
+    }
+
+    function test_GetPopulatedBinsReservesFor() public {
+        uint24 activeId = lbPair0.getActiveId();
+
+        (uint24 id, NonEmptyBinHelper.PopulatedBinUser[] memory bins) =
+            helper.getBinsReserveOf(lbPair0, alice, 0, 10, 10);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::1");
+        assertEq(bins.length, 0, "test_GetPopulatedBinsReservesFor::2");
+
+        (uint256[] memory ids,) = addLiquidity(alice, lbPair0, 1e18, 20e6, 4, 4);
+
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, 0, 10, 10);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::3");
+        assertEq(bins.length, ids.length, "test_GetPopulatedBinsReservesFor::4");
+
+        for (uint256 i; i < bins.length; i++) {
+            assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBinsReservesFor::5");
+
+            (uint128 reserveX, uint128 reserveY) = lbPair0.getBin(bins[i].id);
+            uint256 shares = lbPair0.balanceOf(alice, bins[i].id);
+            uint256 totalShares = lbPair0.totalSupply(bins[i].id);
+
+            assertEq(bins[i].reserveX, reserveX, "test_GetPopulatedBinsReservesFor::6");
+            assertEq(bins[i].reserveY, reserveY, "test_GetPopulatedBinsReservesFor::7");
+            assertGt(shares, 0, "test_GetPopulatedBinsReservesFor::8");
+            assertEq(bins[i].userReserveX, reserveX * shares / totalShares, "test_GetPopulatedBinsReservesFor::9");
+            assertEq(bins[i].userReserveY, reserveY * shares / totalShares, "test_GetPopulatedBinsReservesFor::10");
+        }
+
+        swapNbBins(lbPair0, false, 10);
+
+        (uint256[] memory ids2,) = addLiquidity(alice, lbPair0, 1e18, 20e6, 2, 2);
+
+        activeId = lbPair0.getActiveId();
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, activeId, 20, 20);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::11");
+        assertEq(bins.length, 10, "test_GetPopulatedBinsReservesFor::12");
+
+        for (uint256 i; i < bins.length; i++) {
+            if (i < ids.length) {
+                assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBinsReservesFor::13");
+            } else {
+                assertEq(bins[i].id, uint24(ids2[i - ids.length]), "test_GetPopulatedBinsReservesFor::14");
+            }
+
+            (uint128 reserveX, uint128 reserveY) = lbPair0.getBin(bins[i].id);
+            uint256 shares = lbPair0.balanceOf(alice, bins[i].id);
+            uint256 totalShares = lbPair0.totalSupply(bins[i].id);
+
+            assertEq(bins[i].reserveX, reserveX, "test_GetPopulatedBinsReservesFor::15");
+            assertEq(bins[i].reserveY, reserveY, "test_GetPopulatedBinsReservesFor::16");
+            assertGt(shares, 0, "test_GetPopulatedBinsReservesFor::17");
+            assertEq(bins[i].userReserveX, reserveX * shares / totalShares, "test_GetPopulatedBinsReservesFor::18");
+            assertEq(bins[i].userReserveY, reserveY * shares / totalShares, "test_GetPopulatedBinsReservesFor::19");
+        }
     }
 }
