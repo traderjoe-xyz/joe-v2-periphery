@@ -140,8 +140,10 @@ library NonEmptyBinHelper {
     {
         if (id == 0) id = pair.getActiveId();
 
-        bytes memory idsLeft = getPopulatedBinsId(pair, id - 1, 0, lengthLeft);
-        bytes memory idsRight = getPopulatedBinsId(pair, id, type(uint24).max, lengthRight);
+        bytes memory idsLeft =
+            lengthLeft == 0 ? new bytes(0) : getPopulatedBinsId(pair, lengthRight == 0 ? id : id - 1, 0, lengthLeft);
+        bytes memory idsRight =
+            lengthRight == 0 ? new bytes(0) : getPopulatedBinsId(pair, id, type(uint24).max, lengthRight);
 
         uint256 populatedBinCountLeft = idsLeft.length / 3;
         uint256 populatedBinCountRight = idsRight.length / 3;

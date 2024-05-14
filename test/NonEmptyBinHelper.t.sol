@@ -138,5 +138,32 @@ contract TestNonEmptyBinHelper is TestHelper {
             assertEq(bins[i].userReserveX, reserveX * shares / totalShares, "test_GetPopulatedBinsReservesFor::18");
             assertEq(bins[i].userReserveY, reserveY * shares / totalShares, "test_GetPopulatedBinsReservesFor::19");
         }
+
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, activeId, 0, 20);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::20");
+        assertEq(bins.length, 2, "test_GetPopulatedBinsReservesFor::21");
+
+        for (uint256 i; i < bins.length; i++) {
+            assertEq(bins[i].id, uint24(ids2[i + 1]), "test_GetPopulatedBinsReservesFor::22");
+        }
+
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, activeId, 20, 0);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::23");
+        assertEq(bins.length, 9, "test_GetPopulatedBinsReservesFor::24");
+
+        for (uint256 i; i < bins.length; i++) {
+            if (i < ids.length) {
+                assertEq(bins[i].id, uint24(ids[i]), "test_GetPopulatedBinsReservesFor::25");
+            } else {
+                assertEq(bins[i].id, uint24(ids2[i - ids.length]), "test_GetPopulatedBinsReservesFor::26");
+            }
+        }
+
+        (id, bins) = helper.getBinsReserveOf(lbPair0, alice, activeId, 0, 0);
+
+        assertEq(id, activeId, "test_GetPopulatedBinsReservesFor::27");
+        assertEq(bins.length, 0, "test_GetPopulatedBinsReservesFor::28");
     }
 }
