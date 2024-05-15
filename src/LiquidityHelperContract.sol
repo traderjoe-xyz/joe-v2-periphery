@@ -237,7 +237,7 @@ contract LiquidityHelperContract {
      * @param start The start bin id.
      * @param end The end bin id. (inclusive)
      * @param length The number of non-empty bins to fetch. (optional)
-     * @return populatedBins The populated bins.
+     * @return The array of populated bins with (id, reserveX, reserveY)
      */
     function getPopulatedBinsReserves(ILBPair pair, uint24 start, uint24 end, uint24 length)
         external
@@ -259,7 +259,8 @@ contract LiquidityHelperContract {
      * @param lengthLeft The number of non-empty bins to fetch on the left.
      * @param lengthRight The number of non-empty bins to fetch on the right.
      * @return id The bin id used. (id id was not specified, will return the active bin id)
-     * @return populatedBins The populated bins.
+     * @return The array of populated bins with (id, reserveX, reserveY, shares, totalShares)
+     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares. (totalShares > 0)
      */
     function getBinsReserveOf(ILBPair pair, address user, uint24 id, uint24 lengthLeft, uint24 lengthRight)
         external
