@@ -21,8 +21,8 @@ library NonEmptyBinHelper {
         uint24 id;
         uint128 reserveX;
         uint128 reserveY;
-        uint128 userReserveX;
-        uint128 userReserveY;
+        uint256 shares;
+        uint256 totalShares;
     }
 
     /**
@@ -174,14 +174,7 @@ library NonEmptyBinHelper {
                 (uint128 reserveX, uint128 reserveY) = pair_.getBin(binId);
                 uint256 totalShares = pair_.totalSupply(binId);
 
-                (uint128 userReserveX, uint128 userReserveY) = totalShares == 0
-                    ? (0, 0)
-                    : (
-                        uint128(Uint256x256Math.mulDivRoundDown(shares, reserveX, totalShares)),
-                        uint128(Uint256x256Math.mulDivRoundDown(shares, reserveY, totalShares))
-                    );
-
-                userBins[i++] = PopulatedBinUser(binId, reserveX, reserveY, userReserveX, userReserveY);
+                userBins[i++] = PopulatedBinUser(binId, reserveX, reserveY, shares, totalShares);
             } else {
                 --populatedBinCountLeft;
             }
@@ -206,14 +199,7 @@ library NonEmptyBinHelper {
                 (uint128 reserveX, uint128 reserveY) = pair_.getBin(binId);
                 uint256 totalShares = pair_.totalSupply(binId);
 
-                (uint128 userReserveX, uint128 userReserveY) = totalShares == 0
-                    ? (0, 0)
-                    : (
-                        uint128(Uint256x256Math.mulDivRoundDown(shares, reserveX, totalShares)),
-                        uint128(Uint256x256Math.mulDivRoundDown(shares, reserveY, totalShares))
-                    );
-
-                userBins[i++] = PopulatedBinUser(binId, reserveX, reserveY, userReserveX, userReserveY);
+                userBins[i++] = PopulatedBinUser(binId, reserveX, reserveY, shares, totalShares);
             } else {
                 --populatedBinCount;
             }
