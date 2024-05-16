@@ -9,6 +9,7 @@ import {NonEmptyBinHelper} from "./periphery/NonEmptyBinHelper.sol";
 
 /**
  * @title Liquidity Book periphery contract for Liquidity, Fees Amounts and bin fetching.
+ * This contract can waste a lot of gas and is not meant to be used for on-chain calls.
  * @notice Periphery contract to help compute liquidity, fees amounts from amounts and ids and fetch bins.
  * @dev The caller must ensure that the parameters are valid following the comments.
  */
@@ -248,7 +249,7 @@ contract LiquidityHelperContract {
     }
 
     /**
-     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [start, end] where the user has liquidity.
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [id-lengthLeft, id+lengthRight] where the user has liquidity.
      * If id is not specified, it will use the active bin id of the pair.
      * Will check `lengthLeft` non-empty bins on the left and `lengthRight` non-empty bins on the right, so if the user
      * has liquidity only after the `lengthLeft + 1` bin on the left and `lengthRight + 1` bin on the right, it will return
@@ -258,9 +259,9 @@ contract LiquidityHelperContract {
      * @param id The specific bin id. (optional)
      * @param lengthLeft The number of non-empty bins to fetch on the left.
      * @param lengthRight The number of non-empty bins to fetch on the right.
-     * @return id The bin id used. (id id was not specified, will return the active bin id)
+     * @return id The bin id used. (if id was not specified, will return the active bin id)
      * @return The array of populated bins with (id, reserveX, reserveY, shares, totalShares)
-     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares. (totalShares > 0)
+     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares.
      */
     function getBinsReserveOf(ILBPair pair, address user, uint24 id, uint24 lengthLeft, uint24 lengthRight)
         external

@@ -120,7 +120,7 @@ library NonEmptyBinHelper {
     }
 
     /**
-     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [start, end] where the user has liquidity.
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [id-lengthLeft, id+lengthRight] where the user has liquidity.
      * If id is not specified, it will use the active bin id of the pair.
      * Will check `lengthLeft` non-empty bins on the left and `lengthRight` non-empty bins on the right, so if the user
      * has liquidity only after the `lengthLeft + 1` bin on the left and `lengthRight + 1` bin on the right, it will return
@@ -130,9 +130,9 @@ library NonEmptyBinHelper {
      * @param id The specific bin id. (optional)
      * @param lengthLeft The number of non-empty bins to fetch on the left.
      * @param lengthRight The number of non-empty bins to fetch on the right.
-     * @return The bin id used. (id id was not specified, will return the active bin id)
+     * @return The bin id used. (if id was not specified, it will return the active bin id)
      * @return The array of populated bins with (id, reserveX, reserveY, shares, totalShares)
-     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares. (totalShares > 0)
+     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares.
      */
     function getBinsReserveOf(ILBPair pair, address user, uint24 id, uint24 lengthLeft, uint24 lengthRight)
         internal
