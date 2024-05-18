@@ -3,8 +3,19 @@ pragma solidity ^0.8.0;
 
 import "./TestHelper.sol";
 
+import "../src/periphery/LiquidityHelper.sol";
+import "../src/LiquidityHelperContract.sol";
+
 contract TestLiquidityHelper is TestHelper {
     using Uint256x256Math for uint256;
+
+    LiquidityHelperContract helper;
+
+    function setUp() public override {
+        super.setUp();
+
+        helper = new LiquidityHelperContract();
+    }
 
     function test_GetSharesOf() public {
         (uint256[] memory aliceIds, uint256[] memory aliceShares) = addLiquidity(alice, lbPair0, 1e18, 20e6, 4, 4);
@@ -103,8 +114,8 @@ contract TestLiquidityHelper is TestHelper {
 
         (uint256[] memory aliceAmountsX, uint256[] memory aliceAmountsY) = helper.getAmountsOf(lbPair0, alice, aliceIds);
 
-        assertEq(aliceAmountsX.length, aliceShares.length, "getAmountsOf::1");
-        assertEq(aliceAmountsY.length, aliceShares.length, "getAmountsOf::2");
+        assertEq(aliceAmountsX.length, aliceShares.length, "test_GetAmountsOf::1");
+        assertEq(aliceAmountsY.length, aliceShares.length, "test_GetAmountsOf::2");
 
         for (uint256 i; i < aliceShares.length; ++i) {
             uint24 id = uint24(aliceIds[i]);
@@ -114,16 +125,16 @@ contract TestLiquidityHelper is TestHelper {
             uint256 amountX = aliceShares[i].mulDivRoundDown(binX, totalShares);
             uint256 amountY = aliceShares[i].mulDivRoundDown(binY, totalShares);
 
-            assertEq(amountX, aliceAmountsX[i], "getAmountsOf::3");
-            assertEq(amountY, aliceAmountsY[i], "getAmountsOf::4");
+            assertEq(amountX, aliceAmountsX[i], "test_GetAmountsOf::3");
+            assertEq(amountY, aliceAmountsY[i], "test_GetAmountsOf::4");
         }
 
         (uint256[] memory bobIds, uint256[] memory bobShares) = addLiquidity(bob, lbPair1, 2e18, 40e6, 1, 1);
 
         (uint256[] memory bobAmountsX, uint256[] memory bobAmountsY) = helper.getAmountsOf(lbPair1, bob, bobIds);
 
-        assertEq(bobAmountsX.length, bobShares.length, "getAmountsOf::5");
-        assertEq(bobAmountsY.length, bobShares.length, "getAmountsOf::6");
+        assertEq(bobAmountsX.length, bobShares.length, "test_GetAmountsOf::5");
+        assertEq(bobAmountsY.length, bobShares.length, "test_GetAmountsOf::6");
 
         for (uint256 i; i < bobShares.length; ++i) {
             uint24 id = uint24(bobIds[i]);
@@ -133,22 +144,22 @@ contract TestLiquidityHelper is TestHelper {
             uint256 amountX = bobShares[i].mulDivRoundDown(binX, totalShares);
             uint256 amountY = bobShares[i].mulDivRoundDown(binY, totalShares);
 
-            assertEq(amountX, bobAmountsX[i], "getAmountsOf::7");
-            assertEq(amountY, bobAmountsY[i], "getAmountsOf::8");
+            assertEq(amountX, bobAmountsX[i], "test_GetAmountsOf::7");
+            assertEq(amountY, bobAmountsY[i], "test_GetAmountsOf::8");
         }
 
         (aliceAmountsX, aliceAmountsY) = helper.getAmountsOf(lbPair1, alice, bobIds);
 
         for (uint256 i; i < aliceAmountsX.length; ++i) {
-            assertEq(aliceAmountsX[i], 0, "getAmountsOf::9");
-            assertEq(aliceAmountsY[i], 0, "getAmountsOf::10");
+            assertEq(aliceAmountsX[i], 0, "test_GetAmountsOf::9");
+            assertEq(aliceAmountsY[i], 0, "test_GetAmountsOf::10");
         }
 
         (bobAmountsX, bobAmountsY) = helper.getAmountsOf(lbPair0, bob, aliceIds);
 
         for (uint256 i; i < bobAmountsX.length; ++i) {
-            assertEq(bobAmountsX[i], 0, "getAmountsOf::11");
-            assertEq(bobAmountsY[i], 0, "getAmountsOf::12");
+            assertEq(bobAmountsX[i], 0, "test_GetAmountsOf::11");
+            assertEq(bobAmountsY[i], 0, "test_GetAmountsOf::12");
         }
     }
 
@@ -342,8 +353,8 @@ contract TestLiquidityHelper is TestHelper {
 
             (uint256 amountX, uint256 amountY) = burnLiquidity(alice, lbPair0, singleId, singleFeeShare);
 
-            assertApproxEqRel(amountX, aliceFeesX[i], 1e15, "test_GetFeeSharesAndFeesEarnedOf::14");
-            assertApproxEqAbs(amountY, aliceFeesY[i], 1, "test_GetFeeSharesAndFeesEarnedOf::15");
+            assertApproxEqRel(amountX, aliceFeesX[i], 1e15, "test_GetAmountsAndFeesEarnedOf::16");
+            assertApproxEqAbs(amountY, aliceFeesY[i], 1, "test_GetAmountsAndFeesEarnedOf::17");
         }
 
         // copy current to previous
@@ -360,11 +371,11 @@ contract TestLiquidityHelper is TestHelper {
 
         for (uint256 i; i < aliceCurrentAmountsX.length; ++i) {
             assertApproxEqRel(
-                aliceCurrentAmountsX[i], aliceAmountsX[i] - aliceFeesX[i], 1e12, "test_GetAmountsAndFeesEarnedOf::16"
+                aliceCurrentAmountsX[i], aliceAmountsX[i] - aliceFeesX[i], 1e12, "test_GetAmountsAndFeesEarnedOf::18"
             );
-            assertEq(aliceCurrentAmountsY[i], aliceAmountsY[i] - aliceFeesY[i], "test_GetAmountsAndFeesEarnedOf::17");
-            assertEq(aliceCurrentFeesX[i], 0, "test_GetAmountsAndFeesEarnedOf::18");
-            assertEq(aliceCurrentFeesY[i], 0, "test_GetAmountsAndFeesEarnedOf::19");
+            assertEq(aliceCurrentAmountsY[i], aliceAmountsY[i] - aliceFeesY[i], "test_GetAmountsAndFeesEarnedOf::19");
+            assertEq(aliceCurrentFeesX[i], 0, "test_GetAmountsAndFeesEarnedOf::20");
+            assertEq(aliceCurrentFeesY[i], 0, "test_GetAmountsAndFeesEarnedOf::21");
         }
     }
 

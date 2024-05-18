@@ -2,11 +2,15 @@
 
 pragma solidity ^0.8.20;
 
-import {ILBPair, LiquidityHelper} from "./periphery/LiquidityHelper.sol";
+import {ILBPair} from "joe-v2/interfaces/ILBPair.sol";
+
+import {LiquidityHelper} from "./periphery/LiquidityHelper.sol";
+import {NonEmptyBinHelper} from "./periphery/NonEmptyBinHelper.sol";
 
 /**
- * @title Liquidity Book periphery contract for Liquidity and Fees Amounts
- * @notice Periphery contract to help compute liquidity and fees amounts from amounts and ids.
+ * @title Liquidity Book periphery contract for Liquidity, Fees Amounts and bin fetching.
+ * This contract can waste a lot of gas and is not meant to be used for on-chain calls.
+ * @notice Periphery contract to help compute liquidity, fees amounts from amounts and ids and fetch bins.
  * @dev The caller must ensure that the parameters are valid following the comments.
  */
 contract LiquidityHelperContract {
@@ -207,5 +211,63 @@ contract LiquidityHelperContract {
         uint256[] memory previousLiquidities
     ) external view returns (uint256[] memory feeShares, uint256[] memory feesX, uint256[] memory feesY) {
         return LiquidityHelper.getFeeSharesAndFeesEarnedOf(lbPair, user, ids, previousLiquidities);
+    }
+
+    /**
+     * @dev Fetch the non-empty bins ids of a liquidity book pair from [start, end].
+     * If length is specified, it will return the first `length` non-empty bins.
+     * Returns the ids in a packed bytes array, where each id is 3 bytes.
+     * @param pair The liquidity book pair.
+     * @param start The start bin id.
+     * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
+     * @return ids The non-empty bins ids.
+     */
+    function getPopulatedBinsId(ILBPair pair, uint24 start, uint24 end, uint24 length)
+        external
+        view
+        returns (bytes memory)
+    {
+        return NonEmptyBinHelper.getPopulatedBinsId(pair, start, end, length);
+    }
+
+    /**
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [start, end].
+     *  If length is specified, it will return the first `length` non-empty bins.
+     * @param pair The liquidity book pair.
+     * @param start The start bin id.
+     * @param end The end bin id. (inclusive)
+     * @param length The number of non-empty bins to fetch. (optional)
+     * @return The array of populated bins with (id, reserveX, reserveY)
+     */
+    function getPopulatedBinsReserves(ILBPair pair, uint24 start, uint24 end, uint24 length)
+        external
+        view
+        returns (NonEmptyBinHelper.PopulatedBin[] memory)
+    {
+        return NonEmptyBinHelper.getPopulatedBinsReserves(pair, start, end, length);
+    }
+
+    /**
+     * @notice Fetches the non-empty bins reserves of a liquidity book pair from [id-lengthLeft, id+lengthRight] where the user has liquidity.
+     * If id is not specified, it will use the active bin id of the pair.
+     * Will check `lengthLeft` non-empty bins on the left and `lengthRight` non-empty bins on the right, so if the user
+     * has liquidity only after the `lengthLeft + 1` bin on the left and `lengthRight + 1` bin on the right, it will return
+     * an empty array.
+     * @param pair The liquidity book pair.
+     * @param user The user.
+     * @param id The specific bin id. (optional)
+     * @param lengthLeft The number of non-empty bins to fetch on the left.
+     * @param lengthRight The number of non-empty bins to fetch on the right.
+     * @return id The bin id used. (if id was not specified, will return the active bin id)
+     * @return The array of populated bins with (id, reserveX, reserveY, shares, totalShares)
+     * The user amounts can be calculated as (shares * reserve{X,Y}) / totalShares.
+     */
+    function getBinsReserveOf(ILBPair pair, address user, uint24 id, uint24 lengthLeft, uint24 lengthRight)
+        external
+        view
+        returns (uint24, NonEmptyBinHelper.PopulatedBinUser[] memory)
+    {
+        return NonEmptyBinHelper.getBinsReserveOf(pair, user, id, lengthLeft, lengthRight);
     }
 }
